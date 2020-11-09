@@ -1,4 +1,3 @@
-from starlette.responses import Response
 from src.models.review import Review
 from src.models.objectid import ObjectId
 from src.db.db_connect import connect_db
@@ -17,17 +16,15 @@ def get_reviews() -> list:
 
 
 def get_review(id: str) -> Review:
-    review = db.reviews.find_one({'_id': ObjectId(id)})
-
-    return Review(**review)
+    return Review(**db.reviews.find_one({'_id': ObjectId(id)}))
 
 
 def delete_review(id: str) -> DeleteResult:
     return db.reviews.delete_one({'_id': ObjectId(id)})
 
 
-def update_review(id: str, updated_review: Review, response: Response) -> dict:
-    try:
-        response.status_code = 202
-    except:
-        response.status_code = 404
+def update_review(id: str, updated_review: Review) -> Review:
+    db.reviews.replace_one(
+        {'_id': ObjectId(id)}, dict(updated_review), upsert=True)
+
+    return Review(**db.reviews.find_one({'_id': ObjectId(id)}))

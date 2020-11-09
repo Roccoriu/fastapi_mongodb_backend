@@ -40,10 +40,9 @@ async def delete_review(id, response: Response):
 async def update_review(id, updated_review: Review, response: Response):
     try:
         response.status_code = 202
-        result = db.reviews.replace_one(
-            {'_id': ObjectId(id)}, dict(updated_review), upsert=True)
+        result = review_controller.update_review(id, updated_review)
 
-        return {'status': 'ok', 'result': id}
+        return {'status': 'ok', 'result': [result]}
 
     except:
         response.status_code = 404
